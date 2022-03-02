@@ -133,7 +133,7 @@ function calcul_price_total($qty, $pu, $remise_percent_ligne, $txtva, $uselocalt
 	}
 
 	//var_dump($uselocaltax1_rate.' - '.$uselocaltax2_rate);
-	dol_syslog('Price.lib::calcul_price_total qty='.$qty.' pu='.$pu.' remise_percent_ligne='.$remise_percent_ligne.' txtva='.$txtva.' uselocaltax1_rate='.$uselocaltax1_rate.' uselocaltax2_rate='.$uselocaltax2_rate.' remise_percent_global='.$remise_percent_global.' price_base_type='.$price_base_type.' type='.$type.' progress='.$progress);
+	dol_syslog('Price.lib::calcul_price_total qty=' . $qty . ' pu=' . $pu . ' remise_percent_ligne=' . $remise_percent_ligne . ' txtva=' . $txtva . ' uselocaltax1_rate=' . $uselocaltax1_rate . ' uselocaltax2_rate=' . $uselocaltax2_rate . ' remise_percent_global=' . $remise_percent_global . ' price_base_type=' . $price_base_type . ' type=' . $type . ' progress=' . $progress);
 
 	// Now we search localtaxes information ourself (rates and types).
 	$localtax1_type = 0;
@@ -150,9 +150,9 @@ function calcul_price_total($qty, $pu, $remise_percent_ligne, $txtva, $uselocalt
 		dol_syslog("Price.lib::calcul_price_total search vat information using old deprecated method", LOG_WARNING);
 
 		$sql = "SELECT taux, localtax1, localtax2, localtax1_type, localtax2_type";
-		$sql .= " FROM ".MAIN_DB_PREFIX."c_tva as cv";
-		$sql .= " WHERE cv.taux = ".((float) $txtva);
-		$sql .= " AND cv.fk_pays = ".((int) $countryid);
+		$sql .= " FROM " . MAIN_DB_PREFIX . "c_tva as cv";
+		$sql .= " WHERE cv.taux = " . ((float) $txtva);
+		$sql .= " AND cv.fk_pays = " . ((int) $countryid);
 		$resql = $db->query($sql);
 		if ($resql) {
 			$obj = $db->fetch_object($resql);
@@ -171,7 +171,12 @@ function calcul_price_total($qty, $pu, $remise_percent_ligne, $txtva, $uselocalt
 	// pu calculation from pu_devise if pu empty
 	if (empty($pu) && !empty($pu_devise)) {
 		if (!empty($multicurrency_tx)) {
-			$pu = $pu_devise / $multicurrency_tx;
+			if ($conf->global->MULTICURRENCY_LESS_THAN_FOREIGN) {
+
+				$pu = $pu_devise * $multicurrency_tx;
+			} else {
+				$pu = $pu_devise / $multicurrency_tx;
+			}
 		} else {
 			dol_syslog('Price.lib::calcul_price_total function called with bad parameters combination (multicurrency_tx empty when pu_devise not) ', LOG_ERR);
 			return array();
@@ -183,7 +188,11 @@ function calcul_price_total($qty, $pu, $remise_percent_ligne, $txtva, $uselocalt
 	// pu_devise calculation from pu
 	if (empty($pu_devise) && !empty($multicurrency_tx)) {
 		if (is_numeric($pu) && is_numeric($multicurrency_tx)) {
-			$pu_devise = $pu * $multicurrency_tx;
+			if ($conf->global->MULTICURRENCY_LESS_THAN_FOREIGN) {
+				$pu_devise = $pu / $multicurrency_tx;
+			} else {
+				$pu_devise = $pu * $multicurrency_tx;
+			}
 		} else {
 			dol_syslog('Price.lib::calcul_price_total function called with bad parameters combination (pu or multicurrency_tx are not numeric)', LOG_ERR);
 			return array();
@@ -394,9 +403,9 @@ function calcul_price_total($qty, $pu, $remise_percent_ligne, $txtva, $uselocalt
 			$savMAIN_ROUNDING_RULE_TOT = $conf->global->MAIN_ROUNDING_RULE_TOT;
 
 			// Set parameter for currency accurency according to the value of $multicurrency_code (this is because a foreign currency may have different rounding rules)
-			$keyforforeignMAIN_MAX_DECIMALS_UNIT = 'MAIN_MAX_DECIMALS_UNIT_'.$multicurrency_code;
-			$keyforforeignMAIN_MAX_DECIMALS_TOT = 'MAIN_MAX_DECIMALS_TOT_'.$multicurrency_code;
-			$keyforforeignMAIN_ROUNDING_RULE_TOT = 'MAIN_ROUNDING_RULE_TOT_'.$multicurrency_code;
+			$keyforforeignMAIN_MAX_DECIMALS_UNIT = 'MAIN_MAX_DECIMALS_UNIT_' . $multicurrency_code;
+			$keyforforeignMAIN_MAX_DECIMALS_TOT = 'MAIN_MAX_DECIMALS_TOT_' . $multicurrency_code;
+			$keyforforeignMAIN_ROUNDING_RULE_TOT = 'MAIN_ROUNDING_RULE_TOT_' . $multicurrency_code;
 			if (!empty($conf->global->$keyforforeignMAIN_ROUNDING_RULE_TOT)) {
 				$conf->global->MAIN_MAX_DECIMALS_UNIT = $conf->global->$keyforforeignMAIN_MAX_DECIMALS_UNIT;
 				$conf->global->MAIN_MAX_DECIMALS_TOT = $conf->global->$keyforforeignMAIN_MAX_DECIMALS_TOT;
@@ -443,7 +452,7 @@ function calcul_price_total($qty, $pu, $remise_percent_ligne, $txtva, $uselocalt
 	// initialize result array
 	//for ($i=0; $i <= 18; $i++) $result[$i] = (float) $result[$i];
 
-	dol_syslog('Price.lib::calcul_price_total MAIN_ROUNDING_RULE_TOT='.(empty($conf->global->MAIN_ROUNDING_RULE_TOT) ? '' : $conf->global->MAIN_ROUNDING_RULE_TOT).' pu='.$pu.' qty='.$qty.' price_base_type='.$price_base_type.' total_ht='.$result[0].'-total_vat='.$result[1].'-total_ttc='.$result[2]);
+	dol_syslog('Price.lib::calcul_price_total MAIN_ROUNDING_RULE_TOT=' . (empty($conf->global->MAIN_ROUNDING_RULE_TOT) ? '' : $conf->global->MAIN_ROUNDING_RULE_TOT) . ' pu=' . $pu . ' qty=' . $qty . ' price_base_type=' . $price_base_type . ' total_ht=' . $result[0] . '-total_vat=' . $result[1] . '-total_ttc=' . $result[2]);
 
 	return $result;
 }
