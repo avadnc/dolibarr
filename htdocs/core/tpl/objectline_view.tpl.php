@@ -78,8 +78,6 @@ $sign = 1;
 if (!empty($conf->global->INVOICE_POSITIVE_CREDIT_NOTE_SCREEN) && in_array($object->element, array('facture', 'invoice_supplier')) && $object->type == $object::TYPE_CREDIT_NOTE) {
 	$sign = -1;
 }
-
-
 $coldisplay = 0;
 ?>
 <!-- BEGIN PHP TEMPLATE objectline_view.tpl.php -->
@@ -103,6 +101,7 @@ if (($line->info_bits & 2) == 2) {
 	//else $txt=$langs->trans("Discount");
 	print $txt;
 	print '</a>';
+
 	if ($line->description) {
 		if ($line->description == '(CREDIT_NOTE)' && $line->fk_remise_except > 0) {
 			include_once DOL_DOCUMENT_ROOT.'/core/class/discount.class.php';
@@ -203,7 +202,8 @@ if (($line->info_bits & 2) == 2) {
 		if ($line->element == 'facturedetrec') {
 			print (!empty($line->description) && $line->description != $line->product_label) ? (($line->date_start_fill || $line->date_end_fill) ? '' : '<br>').'<br>'.dol_htmlentitiesbr($line->description) : '';
 		} else {
-			print (!empty($line->description) && $line->description != $line->product_label) ? (($line->date_start || $line->date_end) ? '' : '<br>').'<br>'.dol_htmlentitiesbr($line->description) : '';
+
+			print(!empty($line->description) && $line->description != $line->product_label) ? (($line->date_start || $line->date_end) ? '' : '<br>').'<br>'.dol_htmlentitiesbr($line->description) : '';
 		}
 	}
 

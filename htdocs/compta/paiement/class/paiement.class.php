@@ -259,7 +259,7 @@ class Paiement extends CommonObject
 				$atleastonepaymentnotnull++;
 			}
 		}
-
+		// exit; //fin
 		$totalamount = price2num($totalamount);
 		$totalamount_converted = price2num($totalamount_converted);
 
@@ -321,7 +321,7 @@ class Paiement extends CommonObject
 							$alreadypayed = price2num($paiement + $creditnotes + $deposits, 'MT');
 							$remaintopay = price2num($invoice->total_ttc - $paiement - $creditnotes - $deposits, 'MT');
 
-							//var_dump($invoice->total_ttc.' - '.$paiement.' -'.$creditnotes.' - '.$deposits.' - '.$remaintopay);exit;
+							// var_dump($invoice->total_ttc.' - '.$paiement.' -'.$creditnotes.' - '.$deposits.' - '.$remaintopay);exit;
 
 							//Invoice types that are eligible for changing status to paid
 							$affected_types = array(
